@@ -21,8 +21,23 @@ func NewRepoUser(db *gorm.DB) *UserRepo {
 
 func (r *UserRepo) GetAllUsers(pagination Pagination) ([]entity.User, error) {
 	var users []entity.User
+
+	if pagination.Limit == 0 {
+		pagination.Limit = 5
+	}
+
+	if pagination.Sort == "" {
+		pagination.Sort = "created_at DESC"
+	}
+
 	offset := (pagination.Page - 1) * pagination.Limit
-	err := r.db.Debug().Limit(pagination.Limit).Offset(offset).Find(&users).Error
+	psearch := "%" + pagination.Search + "%"
+	err := r.db.Debug().
+		Limit(pagination.Limit).
+		Offset(offset).
+		Where("username LIKE ? OR email LIKE ? OR name LIKE ? ", psearch, psearch, psearch).
+		Order(pagination.Sort).
+		Find(&users).Error
 	return users, err
 }
 
