@@ -60,14 +60,9 @@ func DecodeToken(tokenString string) (map[string]interface{}, error) {
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(signKey), nil
 	})
-	// var data = []string
 
-	// for key, val := range claims {
-	// 	fmt.Printf("Key: %v, value: %v\n", key, val)
-	// 	if key == "Data" {
-	// 		data = val.(map[string]string)
-	// 	}
-	// }
+	decode := token.Claims.(jwt.MapClaims)
+	data := decode["Data"].(map[string]interface{})
 
-	return token.Claims.(jwt.MapClaims), err
+	return data, err
 }

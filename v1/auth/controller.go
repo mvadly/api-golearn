@@ -91,21 +91,17 @@ func (h *authHandler) GetMyProfile(c *gin.Context) {
 	auth := c.GetHeader("Authorization")
 	token := strings.Replace(auth, "Bearer ", "", 1)
 	// fmt.Println(token)
-	decode, err := util.DecodeToken(token)
-
+	data, err := util.DecodeToken(token)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"status_code": http.StatusInternalServerError,
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status_code": http.StatusBadRequest,
 			"error":       err.Error(),
 		})
+
 		return
 	}
 
-	data := decode["Data"].(map[string]interface{})
 	id := data["id"]
-
-	// fmt.Println(id)
-
 	profile, err := h.authService.Profile(id)
 
 	if err != nil {
