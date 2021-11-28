@@ -17,7 +17,7 @@ func RouteUser(router *gin.Engine, db *gorm.DB) {
 	v1 := router.Group("/v1/", tokenValidator)
 	{
 
-		// v1.POST("/users", userHandler.GetUsers)
+		v1.POST("/users", userHandler.GetUsers)
 		v1.POST("/create_user", userHandler.CreateUser)
 	}
 }

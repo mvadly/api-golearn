@@ -26,8 +26,6 @@ func (h *userHandler) GetUsers(c *gin.Context) {
 		return
 	}
 
-	// pagination := util.GeneratePagination(c)
-	// fmt.Println(pagination)
 	data, err := h.userService.GetUsers(reqPage)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -36,7 +34,25 @@ func (h *userHandler) GetUsers(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"request": data})
+
+	var dataUsers []ResponseUser
+
+	for _, val := range data {
+		// dataUser = append(data.)
+		dataUser := ResponseUser{
+			ID:       uint32(val.ID),
+			Username: val.Username,
+			Email:    val.Email,
+			Name:     val.Name,
+		}
+
+		dataUsers = append(dataUsers, dataUser)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"request": reqPage,
+		"data":    dataUsers,
+	})
 }
 
 func (h *userHandler) CreateUser(c *gin.Context) {

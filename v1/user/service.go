@@ -7,7 +7,7 @@ import (
 
 type UserService interface {
 	CreateUser(create RequestCreateUser) (entity.User, error)
-	GetUsers(pagination Pagination) (entity.User, error)
+	GetUsers(pagination Pagination) ([]entity.User, error)
 }
 
 type userService struct {

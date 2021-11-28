@@ -8,7 +8,7 @@ import (
 
 type User interface {
 	InsertUser(create entity.User) (entity.User, error)
-	GetAllUsers(pagination Pagination) (entity.User, error)
+	GetAllUsers(pagination Pagination) ([]entity.User, error)
 }
 
 type UserRepo struct {
@@ -22,13 +22,7 @@ func NewRepoUser(db *gorm.DB) *UserRepo {
 func (r *UserRepo) GetAllUsers(pagination Pagination) ([]entity.User, error) {
 	var users []entity.User
 	offset := (pagination.Page - 1) * pagination.Limit
-	// queryBuider := r.db.Debug().Limit(pagination.Limit).Offset(offset).Order(pagination.Sort)
-	err := r.db.Limit(pagination.Limit).Offset(offset).Find(&users).Error
-	// fmt.Sprintf("repo : %v", result)
-	// if result.Error != nil {
-	// 	msg := result.Error
-	// 	return nil, msg
-	// }
+	err := r.db.Debug().Limit(pagination.Limit).Offset(offset).Find(&users).Error
 	return users, err
 }
 
