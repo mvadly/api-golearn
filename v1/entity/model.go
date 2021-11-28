@@ -3,10 +3,10 @@ package entity
 import "time"
 
 type User struct {
-	ID        uint16    `gorm:"primaryKey;AUTO_INCREMENT"`
-	Username  string    `gorm:"unique;not null"`
-	Password  string    `gorm:"not null"`
-	Name      string    `gorm:"not null; type:varchar(50)"`
-	Email     string    `gorm:"type:email"`
-	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP()"`
+	ID        uint16    `json:"idz" gorm:"primaryKey;AUTO_INCREMENT"`
+	Username  string    `json:"username" gorm:"unique;not null"`
+	Password  string    `json:"password" gorm:"not null"`
+	Name      string    `json:"name" gorm:"not null; type:varchar(50)"`
+	Email     string    `json:"email" gorm:"type:email"`
+	CreatedAt time.Time `json:"created_at" sql:"default:CURRENT_TIMESTAMP()"`
 }

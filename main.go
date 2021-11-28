@@ -4,6 +4,7 @@ import (
 	"api-golearn/config"
 	"api-golearn/v1/auth"
 	"api-golearn/v1/middleware"
+	"api-golearn/v1/user"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -27,6 +28,7 @@ func main() {
 
 	router.Use(corsHeader)
 	auth.RouteAuth(router, db)
+	user.RouteUser(router, db)
 
 	router.Run(":8000")
 }

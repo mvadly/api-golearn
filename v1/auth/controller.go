@@ -90,7 +90,7 @@ func (h *authHandler) GetLogin(c *gin.Context) {
 func (h *authHandler) GetMyProfile(c *gin.Context) {
 	auth := c.GetHeader("Authorization")
 	token := strings.Replace(auth, "Bearer ", "", 1)
-	// fmt.Println(token)
+
 	data, err := util.DecodeToken(token)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

@@ -4,7 +4,10 @@ go 1.17
 
 require gorm.io/driver/mysql v1.2.0
 
-require github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+	github.com/mashingan/smapping v0.1.13 // indirect
+)
 
 require (
 	github.com/gin-contrib/sse v0.1.0 // indirect
