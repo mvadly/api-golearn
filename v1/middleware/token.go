@@ -23,12 +23,18 @@ func TokenValidator() gin.HandlerFunc {
 		tokenString := authHeader[lenBearer:]
 		token, err := util.ValidateTokenString(tokenString)
 
-		if token.Valid {
-			c.Next()
-		} else {
+		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
+
+		if !token.Valid {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		c.Next()
 	}
 }

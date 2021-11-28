@@ -8,34 +8,33 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-//jwt service
-type JWTService interface {
-	GenerateToken(arrData map[string]string) string
-	ValidateToken(token string) (*jwt.Token, error)
-}
-type AuthCustomClaims struct {
-	ArrData map[string]string
-	jwt.StandardClaims
+type ResponseTokenCreated struct {
+	ID       uint32 `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
 }
 
-type jwtServices struct {
-	secretKey string
-	issure    string
+type AuthCustomClaims struct {
+	Data ResponseTokenCreated
+	jwt.StandardClaims
 }
 
 var signKey = []byte(os.Getenv("JWT_SIGNATURE_KEY"))
 var appName = os.Getenv("APPLICATION_NAME")
+var signMethod = jwt.SigningMethodHS256
 
-func GenerateToken(data map[string]string) (string, error) {
+func GenerateToken(data ResponseTokenCreated) (string, error) {
+
 	claims := &AuthCustomClaims{
 		data,
 		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 1 / 8).Unix(),
+			ExpiresAt: time.Now().Add(time.Hour * 30).Unix(),
 			Issuer:    appName,
 			IssuedAt:  time.Now().Unix(),
 		},
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	token := jwt.NewWithClaims(signMethod, claims)
 
 	//encoded string
 	t, err := token.SignedString([]byte(signKey))
@@ -48,10 +47,27 @@ func GenerateToken(data map[string]string) (string, error) {
 func ValidateTokenString(encodedToken string) (*jwt.Token, error) {
 	return jwt.Parse(encodedToken, func(token *jwt.Token) (interface{}, error) {
 		if _, isvalid := token.Method.(*jwt.SigningMethodHMAC); !isvalid {
-			return nil, fmt.Errorf("Invalid token", token.Header["alg"])
+			return nil, fmt.Errorf("Invalid token %v", token.Header["alg"])
 
 		}
 		return []byte(signKey), nil
 	})
 
+}
+
+func DecodeToken(tokenString string) (map[string]interface{}, error) {
+	claims := jwt.MapClaims{}
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(signKey), nil
+	})
+	// var data = []string
+
+	// for key, val := range claims {
+	// 	fmt.Printf("Key: %v, value: %v\n", key, val)
+	// 	if key == "Data" {
+	// 		data = val.(map[string]string)
+	// 	}
+	// }
+
+	return token.Claims.(jwt.MapClaims), err
 }

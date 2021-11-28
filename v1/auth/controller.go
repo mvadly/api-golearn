@@ -3,8 +3,8 @@ package auth
 import (
 	"api-golearn/v1/util"
 	"net/http"
+	"strings"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
@@ -69,11 +69,7 @@ func (h *authHandler) GetLogin(c *gin.Context) {
 	data.Username = login[0].Username
 	data.Email = login[0].Email
 
-	token, err := util.GenerateToken(map[string]string{
-		"id":       string(rune(data.ID)),
-		"username": data.Username,
-		"email":    data.Email,
-	})
+	token, err := util.GenerateToken(util.ResponseTokenCreated(data))
 
 	if err != nil {
 		c.JSON(http.StatusExpectationFailed, gin.H{
@@ -91,25 +87,55 @@ func (h *authHandler) GetLogin(c *gin.Context) {
 	})
 }
 
-func (h *authHandler) ValidateToken(c *gin.Context) {
-	const BEARER_SCHEMA = "Bearer "
-	authHeader := c.GetHeader("Authorization")
+func (h *authHandler) GetMyProfile(c *gin.Context) {
+	auth := c.GetHeader("Authorization")
+	token := strings.Replace(auth, "Bearer ", "", 1)
+	// fmt.Println(token)
+	decode, err := util.DecodeToken(token)
 
-	if authHeader == "" {
-		c.JSON(http.StatusBadGateway, gin.H{"error": "Authorization is invalid"})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status_code": http.StatusInternalServerError,
+			"error":       err.Error(),
+		})
 		return
 	}
 
-	lenBearer := len(BEARER_SCHEMA)
-	tokenString := authHeader[lenBearer:]
-	token, err := util.ValidateTokenString(tokenString)
+	data := decode["Data"].(map[string]interface{})
+	id := data["id"]
 
-	if token.Valid {
-		claims := token.Claims.(jwt.MapClaims)
-		c.JSON(http.StatusOK, gin.H{"jwt": claims})
+	// fmt.Println(id)
 
-	} else {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+	profile, err := h.authService.Profile(id)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status_code": http.StatusBadRequest,
+			"error":       err.Error(),
+		})
+
+		return
 	}
+
+	if len(profile) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status_code": http.StatusNotFound,
+			"message":     "Data not found",
+			"req":         id,
+		})
+
+		return
+	}
+
+	var profileData = ResponseProfile{
+		ID:       uint32(profile[0].ID),
+		Username: profile[0].Username,
+		Email:    profile[0].Email,
+		Name:     profile[0].Name,
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"status_code": http.StatusOK,
+		"profile":     profileData,
+	})
 
 }

@@ -8,10 +8,7 @@ import (
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		clientUrl := "*"
-		//clientUrl2 := os.Getenv("CLIENT_BASE_URL2")
-		//c.Header("Access-Control-Allow-Origin", clientUrl)
-		//c.Header("Access-Control-Allow-Origin", clientUrl2)
+		clientUrl := "*" 
 		c.Header("Access-Control-Allow-Origin", clientUrl)
 		c.Header("Access-Control-Allow-Credentials", "false")
 		c.Header("Access-Control-Allow-Headers", "token, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
